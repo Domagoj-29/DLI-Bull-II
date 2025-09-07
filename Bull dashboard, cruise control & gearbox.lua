@@ -216,9 +216,9 @@ function onDraw()
 	screen.drawTextBox(75,18,15,5,string.format("%.0f",math.max(0,math.min(math.abs(speed*3.6),999))),0)
 	-- Left blinker
 	if leftBlinker then
-		screen.drawLine(30,19,33,17)
-		screen.drawLine(29,20,36,20)
-		screen.drawLine(30,21,33,23)
+		screen.drawLine(30,19,32,17)
+		screen.drawLine(29,20,35,20)
+		screen.drawLine(30,21,32,23)
 	end
 	-- Right blinker
 	if rightBlinker then
@@ -370,9 +370,9 @@ function onDraw()
 	-- Left blinker
 	if leftBlinker then
 		screen.setColor(8,255,8)
-		screen.drawLine(29,19,32,17)
-		screen.drawLine(28,20,35,20)
-		screen.drawLine(29,21,32,23)
+		screen.drawLine(29,19,31,17)
+		screen.drawLine(28,20,34,20)
+		screen.drawLine(29,21,31,23)
 	end
 	-- Right blinker
 	if rightBlinker then
