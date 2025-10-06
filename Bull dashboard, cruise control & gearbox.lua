@@ -233,7 +233,7 @@ function onDraw()
 	-- Circle around arrow center
 	screen.setColor(100,0,0)
 	screen.drawCircle(14,15,1)
-	screen.drawCircle(81,80,1)
+	screen.drawCircle(81,15,1)
 	-- Arrow
 	screen.setColor(255,0,0)
 	drawArrow(RPS,10,14,15,14)
@@ -382,3 +382,4 @@ function onDraw()
 		screen.drawLine(64,22,66,20)
 	end
 end
+
