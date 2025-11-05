@@ -1,4 +1,8 @@
--- Code partially taken from: https://steamcommunity.com/sharedfiles/filedetails/?id=1871351842
+-- Author: Domagoj29
+-- GitHub: https://github.com/Domagoj-29
+-- Workshop: https://steamcommunity.com/profiles/76561198935577915/myworkshopfiles/
+
+local steering=0
 function onTick()
 	steering=input.getNumber(1)
 	steering=-steering
@@ -22,5 +26,4 @@ function onDraw()
 
 	screen.drawLine(7+(steering*3),h-8,10+(steering*8),h-11)
 	screen.drawLine(w-8+(steering*3),h-8,w-11+(steering*8),h-11)
-
 end
