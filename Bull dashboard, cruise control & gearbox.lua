@@ -1,12 +1,12 @@
-function createDelta()
+--[[local function createDelta()
 	local oldVariable=0
 	return function(variable)
 		local delta=variable-oldVariable
 		oldVariable=variable
 		return delta
 	end
-end
-function createUpDown()
+end]]
+local function createUpDown()
 	local counter=0
 	return function(down,up,increment,min,max)
 		if down then
@@ -19,7 +19,7 @@ function createUpDown()
 		return counter
 	end
 end
-function createPulse()
+local function createPulse()
 	local k=0
 	return function(variable)
 		if not variable then
@@ -30,10 +30,10 @@ function createPulse()
 		return k==1
 	end
 end
-function thresholdGate(value,low,high)
+local function thresholdGate(value,low,high)
 	return (value>=low and value<=high)
 end
-function linearInterpolation(x,x1,x2,y1,y2)
+local function linearInterpolation(x,x1,x2,y1,y2)
 	return y1+((x-x1)*(y2-y1)/(x2-x1))
 end
 --[[
@@ -49,13 +49,13 @@ function automaticGearbox(shifterAxis,RPS,downshiftRPS,upshiftRPS,deltaRPS)
 	end
 end]]
 
-function manualGearbox(shifterAxis)
-	local downShift=downShiftPulse(thresholdGate(shifterAxis,-1,-0.5))
-	local upShift=upShiftPulse(thresholdGate(shifterAxis,0.5,1))
-	local manualShifterValue=shifterUpDown(downShift,upShift,1,-1,4)
+local function manualGearbox(shifterAxis)
+	local downShift=DownShiftPulse(thresholdGate(shifterAxis,-1,-0.5))
+	local upShift=UpShiftPulse(thresholdGate(shifterAxis,0.5,1))
+	local manualShifterValue=ShifterUpDown(downShift,upShift,1,-1,4)
 	return manualShifterValue
 end
-function gearPositionToText(gearPosition)
+local function gearPositionToText(gearPosition)
 	if thresholdGate(gearPosition,-1,-1) then
 		return "R"
 	elseif thresholdGate(gearPosition,0,0) then
@@ -64,52 +64,48 @@ function gearPositionToText(gearPosition)
 		return gearPosition
 	end
 end
-function drawArrow(value,maxValue,x,y,radius)
+local function drawArrow(value,maxValue,x,y,radius)
 	local radians=math.pi+(value/maxValue)*math.pi
 	local arrowX=x+radius*math.cos(radians)
 	local arrowY=y+radius*math.sin(radians)
 	screen.drawLine(x,y,arrowX,arrowY)
 end
 
-downShiftPulse=createPulse()
-upShiftPulse=createPulse()
---automaticDownshiftPulse=createPulse()
---automaticUpshiftPulse=createPulse()
-shifterUpDown=createUpDown()
---automaticUpDown=createUpDown()
---rpsDelta=createDelta()
+DownShiftPulse=createPulse()
+UpShiftPulse=createPulse()
+--local automaticDownshiftPulse=createPulse()
+--local automaticUpshiftPulse=createPulse()
+ShifterUpDown=createUpDown()
+--local automaticUpDown=createUpDown()
+--local rpsDelta=createDelta()
 
+--DownshiftRPS=property.getNumber("Downshift RPS")
+--UpshiftRPS=property.getNumber("Upshift RPS")
+MaxFuel=property.getNumber("Max fuel")
 function onTick()
 	local shifter=input.getNumber(4)
-	engineTemperature=input.getNumber(5)
-	speed=input.getNumber(6)
+	EngineTemperature=input.getNumber(5)
+	Speed=input.getNumber(6)*3.6
 	RPS=input.getNumber(7)
-	batteryCharge=input.getNumber(8)
-	local leftFuelTank=input.getNumber(9)
-	local rightFuelTank=input.getNumber(10)
+	BatteryCharge=input.getNumber(8)
+	Fuel=input.getNumber(9)+input.getNumber(10)
 
-	fuel=leftFuelTank+rightFuelTank
+	CruiseControlButton=input.getBool(3)
+	LaneHoldButton=input.getBool(4)
 
-	local downshiftRPS=property.getNumber("Downshift RPS")
-	local upshiftRPS=property.getNumber("Upshift RPS")
-	maxFuel=property.getNumber("Max fuel")
-
-	cruiseControlButton=input.getBool(3)
-	laneHoldButton=input.getBool(4)
-
-	leftBlinker=input.getBool(7)
-	rightBlinker=input.getBool(8)
+	LeftBlinker=input.getBool(7)
+	RightBlinker=input.getBool(8)
 
 	--local deltaRPS=rpsDelta(RPS)
-	--local gearPosition=automaticGearbox(shifter,RPS,downshiftRPS,upshiftRPS,deltaRPS)
-	gearPosition=manualGearbox(shifter)
-	gearText=gearPositionToText(gearPosition)
+	--local gearPosition=automaticGearbox(shifter,RPS,DownshiftRPS,UpshiftRPS,deltaRPS)
+	local gearPosition=manualGearbox(shifter)
+	GearText=gearPositionToText(gearPosition)
 	output.setBool(1,thresholdGate(gearPosition,-1,-1))
 	output.setBool(2,thresholdGate(gearPosition,0,0))
 	output.setBool(3,thresholdGate(gearPosition,1,1) or thresholdGate(gearPosition,-1,-1))
 	output.setBool(4,thresholdGate(gearPosition,2,2))
 	output.setBool(5,thresholdGate(gearPosition,3,3))
-	-- 4th does not need to be output, when in 3rd, the default gear ratio is used
+	-- 4th gear does not need to be output, the default gear ratio is used
 end
 function onDraw()
 	-- Background color
@@ -158,19 +154,19 @@ function onDraw()
 	screen.drawRectF(66,4,1,1)
 	screen.drawRect(62,5,5,4)
 	-- Cruise Control symbol (shading)
-	if cruiseControlButton then
+	if CruiseControlButton then
 		screen.drawCircle(41,20,3)
 		screen.drawLine(41,20,39,18)
 	end
 	-- Lane hold symbol (shading)
-	if laneHoldButton then
+	if LaneHoldButton then
 		screen.drawLine(53,23,54,16)
 		screen.drawLine(56,17,56,20)
 		screen.drawLine(56,21,56,24)
 		screen.drawLine(59,23,58,16)
 	end
 	-- Engine overheating symbol (shading)
-	if engineTemperature>85 then
+	if EngineTemperature>85 then
 		screen.drawLine(48,17,48,22)
 		screen.drawRectF(49,18,1,1)
 		screen.drawRectF(49,20,1,1)
@@ -209,19 +205,19 @@ function onDraw()
 	screen.drawRectF(58,10,1,1)
 	screen.drawRectF(57,13,2,1)
 	-- Gear position text (shading)
-	screen.drawText(47,1,gearText)
+	screen.drawText(47,1,GearText)
 	-- RPS dial text (shading)
 	screen.drawTextBox(11,18,10,5,string.format("%.0f",math.max(0,math.min(RPS,99))),0)
 	-- KPH dial text (shading)
-	screen.drawTextBox(75,18,15,5,string.format("%.0f",math.max(0,math.min(math.abs(speed*3.6),999))),0)
+	screen.drawTextBox(75,18,15,5,string.format("%.0f",math.max(0,math.min(math.abs(Speed),999))),0)
 	-- Left blinker
-	if leftBlinker then
+	if LeftBlinker then
 		screen.drawLine(30,19,32,17)
 		screen.drawLine(29,20,35,20)
 		screen.drawLine(30,21,32,23)
 	end
 	-- Right blinker
-	if rightBlinker then
+	if RightBlinker then
 		screen.drawLine(65,18,67,20)
 		screen.drawLine(62,20,68,20)
 		screen.drawLine(65,22,67,20)
@@ -237,7 +233,7 @@ function onDraw()
 	-- Arrow
 	screen.setColor(255,0,0)
 	drawArrow(RPS,10,14,15,14)
-	drawArrow(math.abs(speed*3.6),130,81,15,14)
+	drawArrow(math.abs(Speed),130,81,15,14)
 	-- Dial graduations
 	screen.setColor(120,120,120)
 	screen.drawLine(1,15,3,15)
@@ -283,7 +279,7 @@ function onDraw()
 	screen.drawRectF(85,10,1,1)
 	screen.drawLine(86,8,86,13)
 	-- Fuel symbol
-	if (fuel/maxFuel*100)<15 then
+	if Fuel/MaxFuel<0.15 then
 		screen.setColor(255,191,0)
 	else
 		screen.setColor(255,255,255)
@@ -293,7 +289,7 @@ function onDraw()
 	screen.drawRectF(29,7,5,5)
 	screen.drawLine(28,11,35,11)
 	-- Battery symbol
-	if (batteryCharge*100)<30 then
+	if BatteryCharge<0.3 then
 		screen.setColor(255,191,0)
 	else
 		screen.setColor(255,255,255)
@@ -302,13 +298,13 @@ function onDraw()
 	screen.drawRectF(65,4,1,1)
 	screen.drawRect(61,5,5,4)
 	-- Cruise Control symbol
-	if cruiseControlButton then
+	if CruiseControlButton then
 		screen.setColor(255,255,255)
 		screen.drawCircle(40,20,3)
 		screen.drawLine(40,20,38,18)
 	end
 	-- Lane hold symbol
-	if laneHoldButton then
+	if LaneHoldButton then
 		screen.setColor(255,255,255)
 		screen.drawLine(52,23,53,16)
 		screen.drawLine(55,17,55,20)
@@ -316,7 +312,7 @@ function onDraw()
 		screen.drawLine(58,23,57,16)
 	end
 	-- Engine overheating symbol
-	if engineTemperature>85 then
+	if EngineTemperature>85 then
 		screen.setColor(255,191,0)
 		screen.drawLine(47,17,47,22)
 		screen.drawRectF(48,18,1,1)
@@ -357,29 +353,28 @@ function onDraw()
 	screen.drawRectF(57,10,1,1)
 	screen.drawRectF(56,13,2,1)
 	-- Gear position text
-	screen.drawText(46,1,gearText)
+	screen.drawText(46,1,GearText)
 	-- RPS dial text
 	screen.drawTextBox(10,18,10,5,string.format("%.0f",math.max(0,math.min(RPS,99))),0)
 	-- KPH dial text
-	screen.drawTextBox(74,18,15,5,string.format("%.0f",math.max(0,math.min(math.abs(speed*3.6),999))),0)
+	screen.drawTextBox(74,18,15,5,string.format("%.0f",math.max(0,math.min(math.abs(Speed),999))),0)
 	-- Fuel Gauge Line
 	screen.setColor(255,0,0)
-	screen.drawRectF(38,linearInterpolation(fuel,0,maxFuel,13,1),5,1)
+	screen.drawRectF(38,linearInterpolation(Fuel,0,MaxFuel,13,1),5,1)
 	-- Battery Gauge Line
-	screen.drawRectF(53,linearInterpolation(batteryCharge,0,1,13,1),5,1)
+	screen.drawRectF(53,linearInterpolation(BatteryCharge,0,1,13,1),5,1)
 	-- Left blinker
-	if leftBlinker then
+	if LeftBlinker then
 		screen.setColor(8,255,8)
 		screen.drawLine(29,19,31,17)
 		screen.drawLine(28,20,34,20)
 		screen.drawLine(29,21,31,23)
 	end
 	-- Right blinker
-	if rightBlinker then
+	if RightBlinker then
 		screen.setColor(8,255,8)
 		screen.drawLine(64,18,66,20)
 		screen.drawLine(61,20,67,20)
 		screen.drawLine(64,22,66,20)
 	end
 end
-
