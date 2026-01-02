@@ -1,3 +1,7 @@
+-- Author: Domagoj29
+-- GitHub: https://github.com/Domagoj-29
+-- Workshop: https://steamcommunity.com/profiles/76561198935577915/myworkshopfiles/
+
 --[[local function createDelta()
 	local oldVariable=0
 	return function(variable)
