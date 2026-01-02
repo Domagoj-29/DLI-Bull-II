@@ -2,6 +2,17 @@
 -- GitHub: https://github.com/Domagoj-29
 -- Workshop: https://steamcommunity.com/profiles/76561198935577915/myworkshopfiles/
 
+-- onDraw functions
+
+local function drawArrow(value,maxValue,x,y,radius)
+	local radians=math.pi+(value/maxValue)*math.pi
+	local arrowX=x+radius*math.cos(radians)
+	local arrowY=y+radius*math.sin(radians)
+	screen.drawLine(x,y,arrowX,arrowY)
+end
+
+-- onTick functions
+
 --[[local function createDelta()
 	local oldVariable=0
 	return function(variable)
@@ -67,12 +78,6 @@ local function gearPositionToText(gearPosition)
 	else
 		return gearPosition
 	end
-end
-local function drawArrow(value,maxValue,x,y,radius)
-	local radians=math.pi+(value/maxValue)*math.pi
-	local arrowX=x+radius*math.cos(radians)
-	local arrowY=y+radius*math.sin(radians)
-	screen.drawLine(x,y,arrowX,arrowY)
 end
 
 DownShiftPulse=createPulse()
